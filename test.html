@@ -76,6 +76,47 @@
       klaviyo.identify({ email: "jhon.doe@klaviyo-example.com" });
     </script>
 
+    <script>
+      document.addEventListener(
+  "doofinder.layer.search",
+  function onDooFinderSearch(event) {
+    // ignore page navigation
+    if (event.detail.page > 1) {
+      return;
+    }
+
+    let attributes = {};
+    attributes["searchTerm"] = event.detail.query;
+    for (const [key, value] of Object.entries(event.detail.filter)) {
+      if (key == "terms") {
+        for (const [subKey, subValue] of Object.entries(value)) {
+          attributes["filter " + subKey] = subValue.join(", ");
+        }
+      } else if (key == "range") {
+        for (const [subKey, subValue] of Object.entries(value)) {
+          Object.keys(subValue).forEach(function (filterKey) {
+            filterValue = subValue[filterKey];
+            attributes["filter " + subKey + " " + filterKey] = filterValue;
+          });
+        }
+      }
+    }
+
+    klaviyo.push(["track", "Doofinder search", attributes]);
+  }
+);
+
+document.addEventListener(
+  "doofinder.cart.add",
+  function onDooFinderAddToCart(event) {
+    let attributes = {};
+    attributes["productId"] = event.detail.id;
+    attributes["productUrl"] = event.detail.link;
+    klaviyo.push(["track", "Doofinder search", attributes]);
+  }
+);
+    </script>
+
     <input type="search" id="mysearchbox" placeholder="type something" />
 
     <button id="mybutton"></button>
